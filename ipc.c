@@ -9,8 +9,6 @@
 
 ssize_t send_low (int descriptor, const Message * msg);
 ssize_t receive_low (int descriptor, Message * msg);
-#define m_send_low(dst, msg) write(ctx->outpipes[dst], msg, sizeof(MessageHeader) + msg->s_header.s_payload_len)
-#define m_recieve_low(src, msg)
 
 int send (void * self, local_id dst, const Message * msg)
 {
@@ -69,33 +67,18 @@ ssize_t send_low (int descriptor, const Message * msg)
 ssize_t receive_low (int descriptor, Message * msg)
 {
 	Message buffer;
-	//~ size_t r;
-	//~ do {
-		//~ errno = 0;
-		//~ if ((r = read(descriptor, &buffer, sizeof(MessageHeader))) <= 0) {
-			//~ if (errno != 0 && errno != EAGAIN) {
-				//~ return -1;
-			//~ }
-			//~ //sleep(1);
-		//~ }
-	//~ } while (r == 0);
-	while (read(descriptor, &buffer, sizeof(MessageHeader)) <= 0);
-	//~ do {
-		//~ errno = 0;
-		//~ r = read(descriptor, &buffer, sizeof(MessageHeader));
+    ssize_t result;
 
-	//~ }
+	while (1){
+        result = read(descriptor, &buffer, sizeof(MessageHeader));
+        if (result > 0) break;
+        if (result <= 0) return -1;
+    }
 	ssize_t length = buffer.s_header.s_payload_len;
 	if (length > 0) {
 		while (read(descriptor, &buffer.s_payload, length) <= 0);
 	}
-	//~ errno = 0;
-	//~ while (read(descriptor, &buffer.s_payload, length) <= 0) {
-		//~ if (errno != 0 && errno != EAGAIN) {
-			//~ return -1;
-		//~ }
-		//~ errno = 0;
-	//~ }
+
 	memcpy(msg, &buffer, sizeof(MessageHeader) + length);
 	return sizeof(MessageHeader) + length;
 }

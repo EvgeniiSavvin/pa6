@@ -33,7 +33,7 @@ typedef struct {
 } context_t;
 
 
-pid_t doFork(context_t ctx, void (*job)(context_t* ctx));
+pid_t doFork(context_t ctx, void (*job)(context_t*));
 void setupContext(context_t* ctx, local_id id, int numberOfProcesses);
 void useContextPipes(context_t* ctx, int* readPipeMatrix, int* writePipeMatrix);
 void freeContext(context_t* ctx);
@@ -42,6 +42,8 @@ void updateContextTimeFromMessage(context_t* ctx, Message* msg);
 void incrementContextTime(context_t* ctx);
 
 int processRequests(context_t* ctx);
+
+void printForkStatus(context_t* ctx);
 
 extern FILE* logEvents;
 extern FILE* logPipes;
